@@ -1,0 +1,68 @@
+{
+  "name": "isometric-contributions",
+  "version": "0.1.0",
+  "description": "Isometric SVG GitHub contribution calendar for React. The buildings on taxzy.dev.",
+  "license": "MIT",
+  "author": "Ros MengHeang (Taxzy) (https://taxzy.dev)",
+  "homepage": "https://taxzy.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RosMengHeang/isometric-contributions.git"
+  },
+  "bugs": {
+    "url": "https://github.com/RosMengHeang/isometric-contributions/issues"
+  },
+  "keywords": [
+    "react",
+    "typescript",
+    "github",
+    "contributions",
+    "calendar",
+    "isometric",
+    "svg"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./contributions": {
+      "types": "./src/contributions.ts",
+      "default": "./src/contributions.ts"
+    },
+    "./styles.css": "./src/iso-styles.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test scripts/check-parser.ts"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

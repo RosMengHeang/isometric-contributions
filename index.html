@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Isometric Contributions</title>
+    <meta
+      name="description"
+      content="Isometric SVG GitHub contribution calendar for React. The same buildings that run on taxzy.dev."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,450;6..72,550&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%2330a14e' d='M2 9.2 8 6l6 3.2-6 3.2z'/%3E%3Cpath fill='%23216e39' d='M2 9.2 8 12.4V15L2 11.8z'/%3E%3Cpath fill='%230e4429' d='M8 12.4 14 9.2V11.8L8 15z'/%3E%3C/svg%3E"
+    />
+    <script>
+      try {
+        var saved = localStorage.getItem("iso-theme")
+        var dark = saved ? saved === "dark" : matchMedia("(prefers-color-scheme: dark)").matches
+        if (dark) document.documentElement.classList.add("dark")
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
