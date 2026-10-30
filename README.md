@@ -227,7 +227,7 @@ npm test
 npm run build      # library into dist/, demo into demo-dist/
 ```
 
-The demo has a style picker, a theme picker, a dark-mode toggle, a Download SVG button, and copyable setup snippets for each install path. The Vite dev and preview servers proxy `https://github.com/users/<username>/contributions` through `/api/github/<username>/contributions`, because browsers cannot read that page directly.
+The demo site (`src/demo/`) has a live playground with style, theme, and option controls, a gallery of every style, SVG and PNG export, shareable links, and setup guides whose code follows your playground settings. The Vite dev and preview servers proxy `https://github.com/users/<username>/contributions` through `/api/github/<username>/contributions`, because browsers cannot read that page directly. On static hosting, the demo falls back to the public [github-contributions-api](https://github.com/grubersjoe/github-contributions-api), then to sample data.
 
 ## Credits
 

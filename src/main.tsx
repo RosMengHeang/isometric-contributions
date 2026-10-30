@@ -1,7 +1,7 @@
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { App } from "./App.tsx"
-import "./demo.css"
+import { App } from "./demo/App.tsx"
+import "./demo/demo.css"
 
 const root = document.getElementById("root")
 if (!root) throw new Error("Root element #root is missing")
