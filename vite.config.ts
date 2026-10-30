@@ -17,6 +17,8 @@ const githubProxy: Record<string, ProxyOptions> = {
 
 export default defineConfig({
   plugins: [react()],
+  // dist/ holds the published library build.
+  build: { outDir: "demo-dist" },
   server: { port: 5173, proxy: githubProxy },
   preview: { port: 4173, proxy: githubProxy },
 })

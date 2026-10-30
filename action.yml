@@ -1,0 +1,61 @@
+name: Isometric Contributions
+description: Render a GitHub contribution calendar as an isometric (or 2D) city SVG.
+author: Ros MengHeang
+branding:
+  icon: grid
+  color: green
+
+inputs:
+  username:
+    description: GitHub login to draw.
+    default: ${{ github.repository_owner }}
+  variant:
+    description: isometric | city | flat | skyline
+    default: isometric
+  theme:
+    description: github | halloween | ocean | sunset | neon | sakura | frost | mono
+    default: github
+  scheme:
+    description: system | light | dark
+    default: system
+  colors:
+    description: Five comma-separated colors. Overrides theme.
+    default: ""
+  output:
+    description: Where to write the SVG.
+    default: dist/isometric-contributions.svg
+  width:
+    description: SVG width in pixels.
+    default: "880"
+  animate:
+    description: "true to make buildings rise in when the image loads."
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Build isometric-contributions
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npm ci --no-audit --no-fund --ignore-scripts && npm run build:lib
+
+    - name: Render SVG
+      shell: bash
+      env:
+        IC_USERNAME: ${{ inputs.username }}
+        IC_VARIANT: ${{ inputs.variant }}
+        IC_THEME: ${{ inputs.theme }}
+        IC_SCHEME: ${{ inputs.scheme }}
+        IC_COLORS: ${{ inputs.colors }}
+        IC_OUTPUT: ${{ inputs.output }}
+        IC_WIDTH: ${{ inputs.width }}
+        IC_ANIMATE: ${{ inputs.animate }}
+      run: |
+        args=("$IC_USERNAME" --variant "$IC_VARIANT" --theme "$IC_THEME" --scheme "$IC_SCHEME" --width "$IC_WIDTH" --out "$IC_OUTPUT")
+        if [ -n "$IC_COLORS" ]; then args+=(--colors "$IC_COLORS"); fi
+        if [ "$IC_ANIMATE" = "true" ]; then args+=(--animate); fi
+        node "${{ github.action_path }}/dist/cli.js" "${args[@]}"
