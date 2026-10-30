@@ -1,84 +1,200 @@
 # isometric-contributions
 
-An isometric SVG calendar of GitHub contributions, drawn as a city of blocks. Each day is a building: height follows that day's count, and color is GitHub's contribution level.
+Your GitHub contribution calendar, drawn as a city. Pick a style (3D blocks, a 3D city, a 2D skyline, or the classic grid) and a color theme. Then drop it into your portfolio as a React component, a static SVG, or a self-updating image in your GitHub profile README.
 
-This is the calendar on [taxzy.dev](https://taxzy.dev). It is a small React + TypeScript component, MIT licensed, by [Ros MengHeang](https://github.com/RosMengHeang) (Taxzy).
-
-[Live showcase](https://taxzy.dev)
+This is the calendar on [taxzy.dev](https://taxzy.dev). MIT licensed, by [Ros MengHeang](https://github.com/RosMengHeang) (Taxzy).
 
 ![Isometric contribution calendar for RosMengHeang](docs/demo.png)
 
-## Demo
+## Styles
 
-```bash
-git clone https://github.com/RosMengHeang/isometric-contributions.git
-cd isometric-contributions
-npm install
-npm run dev
-```
+| `variant` | Look |
+| --- | --- |
+| `isometric` (default) | 3D blocks. Height follows each day's count. |
+| `city` | 3D skyscrapers on street plates, with lit windows, rooftop details, antennas on the busiest days, and trees on empty days. |
+| `flat` | The classic 2D GitHub grid. |
+| `skyline` | A 2D city. Each week is a tower whose height follows that week's total. Its bottom seven windows are the days. |
 
-The dev server opens a page that loads **RosMengHeang** by default. Change the username in the form, or visit `/?user=octocat`. Accent color and a dark-mode toggle are on the page.
+<p>
+  <img src="docs/city.svg" alt="city variant" width="100%" />
+  <img src="docs/skyline.svg" alt="skyline variant" width="100%" />
+</p>
 
-`npm run build` typechecks and writes the static demo to `dist/`. `npm run preview` serves that build.
+Themes: `github`, `halloween`, `ocean`, `sunset`, `neon`, `sakura`, `frost`, and `mono`. Each has a light and a dark ramp. You can also pass your own five colors.
 
-GitHub's contribution page does not send CORS headers, so a browser cannot read it directly. The Vite dev and preview servers proxy `https://github.com/users/<username>/contributions` through `/api/github/<username>/contributions`. In an app, fetch on the server and pass the result in as a prop.
+## Pick the setup that fits your portfolio
 
-## Install
+| Your site | Use |
+| --- | --- |
+| Next.js, Remix, or any React app with a server | [React component](#react--nextjs) |
+| Vite or another React SPA without a server | [React component + JSON at build time](#react-without-a-server) |
+| Plain HTML, Astro, Vue, Svelte, Hugo, Jekyll, and so on | [Static SVG](#any-site-static-svg) |
+| GitHub profile README | [GitHub Action](#github-profile-readme) |
 
-The package ships as TypeScript source. Copy the four library files into your app:
+Not sure which one? Run the demo (`npm run dev`), pick a style, and copy the snippet it generates for you.
 
-- `src/index.ts`
-- `src/IsometricContributions.tsx`
-- `src/contributions.ts`
-- `src/iso-styles.css`
-
-Or install from GitHub. Peer dependency: React 18 or newer.
+## React / Next.js
 
 ```bash
 npm install github:RosMengHeang/isometric-contributions
 ```
 
-Vite can import the source as-is. Next.js needs the package in `transpilePackages`:
-
-```js
-// next.config.js
-const nextConfig = {
-  transpilePackages: ["isometric-contributions"],
-}
-```
-
-`IsometricContributions.tsx` imports `iso-styles.css`. If a bundler drops CSS from dependencies, import `isometric-contributions/styles.css` yourself.
-
-## Usage
-
-Fetch in a Server Component (or any other server runtime) and render the chart. The component is marked `"use client"` because hover state uses `useState`. Import the fetcher from `isometric-contributions/contributions` so the request stays on the server when the chart is a client boundary.
+The package ships compiled JavaScript, type definitions, and CSS. It needs React 18 or newer and no extra bundler config: no `transpilePackages`.
 
 ```tsx
+// app/github-city.tsx: a Server Component
 import { IsometricContributions } from "isometric-contributions"
 import { fetchContributionCalendar } from "isometric-contributions/contributions"
 
-export async function GitHubActivity({ username }: { username: string }) {
-  const calendar = await fetchContributionCalendar(username)
-  return (
-    <IsometricContributions
-      calendar={calendar}
-      username={username}
-      accentColor="#0a3986"
-    />
-  )
+export async function GitHubCity() {
+  const calendar = await fetchContributionCalendar("your-username", { next: { revalidate: 3600 } })
+  return <IsometricContributions calendar={calendar} username="your-username" variant="city" theme="ocean" animate />
 }
 ```
 
-The main entry also re-exports the parser and the fetcher for client apps and scripts:
+GitHub's contribution page does not send CORS headers, so fetch on the server and pass the result in as a prop. The component is marked `"use client"` because hover uses state. Import the fetcher from `isometric-contributions/contributions` so the request stays on the server.
+
+The component imports its own stylesheet. If your bundler drops CSS from dependencies, import `isometric-contributions/styles.css` yourself.
+
+### React without a server
+
+Save the calendar as JSON at build time and import it:
+
+```bash
+npx github:RosMengHeang/isometric-contributions your-username --format json -o src/data/contributions.json
+```
+
+```tsx
+import { IsometricContributions } from "isometric-contributions"
+import calendar from "./data/contributions.json"
+
+export const GitHubCity = () => <IsometricContributions calendar={calendar} variant="skyline" />
+```
+
+Add the command to a `prebuild` script so each deploy refreshes the data.
+
+## Any site: static SVG
+
+The CLI writes a standalone SVG. It needs no React, no CSS file, and no JavaScript on the page.
+
+```bash
+npx github:RosMengHeang/isometric-contributions your-username --variant city --theme neon -o public/github-city.svg
+```
+
+```html
+<img src="/github-city.svg" alt="My GitHub contributions" />
+```
+
+By default the SVG follows the viewer's light or dark OS setting. Hovering a day in an inlined SVG shows its count as a tooltip.
+
+```text
+Usage: isometric-contributions <github-username> [options]
+
+  -v, --variant <name>   isometric | city | flat | skyline   (default: isometric)
+  -t, --theme <name>     github | halloween | ocean | sunset | neon | sakura | frost | mono
+  -s, --scheme <name>    system | light | dark   (default: system)
+      --colors <list>    five comma-separated colors, overrides --theme
+  -f, --format <name>    svg | json   (default: svg)
+  -o, --out <file>       write to a file instead of stdout
+  -w, --width <px>       SVG width   (default: 880)
+      --animate          buildings rise in when the image loads
+      --background       fill the card color behind the drawing
+      --no-header        hide the total / best-streak line
+```
+
+On a server you can render the same SVG yourself, for example in an Astro page or an API route:
+
+```ts
+import { fetchContributionCalendar } from "isometric-contributions/contributions"
+import { renderContributionsSvg } from "isometric-contributions/svg"
+
+const calendar = await fetchContributionCalendar("your-username")
+const svg = renderContributionsSvg(calendar, { variant: "flat", theme: "sakura", username: "your-username" })
+// Astro: <Fragment set:html={svg} />   API route: new Response(svg, { headers: { "content-type": "image/svg+xml" } })
+```
+
+## GitHub profile README
+
+Add this workflow to your `<username>/<username>` repository. It redraws your city every day and publishes the SVG to an `output` branch.
+
+```yaml
+# .github/workflows/github-city.yml
+name: GitHub city
+on:
+  schedule: [{ cron: "0 0 * * *" }]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: RosMengHeang/isometric-contributions@main
+        with:
+          username: ${{ github.repository_owner }}
+          variant: city
+          theme: github
+          output: dist/github-city.svg
+      - uses: crazy-max/ghaction-github-pages@v4
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Then add it to your README:
+
+```md
+<img src="https://raw.githubusercontent.com/<username>/<username>/output/github-city.svg" alt="My GitHub city" />
+```
+
+The action takes the inputs `username`, `variant`, `theme`, `scheme`, `colors`, `output`, `width`, and `animate`. They match the CLI flags.
+
+## Props
+
+| Prop | Type | Default | |
+| --- | --- | --- | --- |
+| `calendar` | `ContributionCalendar \| null` | — | Parsed year. `null` renders the empty state. |
+| `username` | `string` | `"octocat"` | GitHub login used in the empty-state link. |
+| `variant` | `"isometric" \| "city" \| "flat" \| "skyline"` | `"isometric"` | Drawing style. |
+| `theme` | `ThemeName` | `"github"` | Built-in color ramp. |
+| `colors` | `[5 colors] \| { light?, dark? }` | — | Your own ramp, from no contributions to the most. Overrides `theme`. |
+| `colorScheme` | `"auto" \| "system" \| "light" \| "dark"` | `"auto"` | `auto` follows a `dark` class on any ancestor. `system` follows the OS. |
+| `animate` | `boolean` | `false` | Buildings rise in week by week. Skipped when the visitor prefers reduced motion. |
+| `showStats` | `boolean` | `true` | Best streak, highest day, average per day. |
+| `showLegend` | `boolean` | `true` | Legend and the hovered-day line. |
+| `accentColor` | `string` | `"#0a3986"` | Highlight for the hovered day. Also settable with the CSS variable `--iso-accent`. |
+| `className` | `string` | — | Extra class on the root element. |
+
+```tsx
+<IsometricContributions calendar={calendar} colors={["#eee", "#c7d2fe", "#818cf8", "#4f46e5", "#312e81"]} />
+<IsometricContributions calendar={calendar} variant="flat" showStats={false} showLegend={false} />
+```
+
+Hover or tap a building to show that day under the legend. Building height is scaled to the busiest day of the year, and empty days stay flat.
+
+## Dark mode
+
+The light ramp is the default. Add the class `dark` to any ancestor (the hook Tailwind's class strategy uses), and the cells, legend, card, and text switch to the dark ramp. Or set `colorScheme="dark"` or `colorScheme="system"` on the component.
+
+## API
 
 ```ts
 import {
-  IsometricContributions,
-  fetchContributionCalendar,
-  parseContributionCalendar,
-  type ContributionCalendar,
-  type ContributionDay,
+  IsometricContributions,      // React component
+  fetchContributionCalendar,   // (username, init?) => Promise<ContributionCalendar | null>
+  parseContributionCalendar,   // (html) => ContributionCalendar | null
+  renderContributionsSvg,      // (calendar, options?) => string, also at "isometric-contributions/svg"
+  buildScene,                  // framework-free geometry, if you want your own renderer
+  summarizeCalendar,           // { total, best, highest, average, days }
+  themes, themeNames, variants,
 } from "isometric-contributions"
+```
+
+```ts
+type ContributionDay = { date: string; count: number; level: number } // date YYYY-MM-DD, level 0–4
+type ContributionCalendar = { total: number; weeks: (ContributionDay | null)[][] } // weeks[column][weekday]
 ```
 
 `fetchContributionCalendar` accepts an optional `RequestInit` as its second argument (`{ cache: "no-store" }`, extra headers, and so on).
@@ -98,43 +214,20 @@ That URL is the public profile graph. The fetch sends no personal access token a
 1. Each day is a `<td class="ContributionCalendar-day">` with `data-date`, `data-level` (`0`–`4`), and `id="contribution-day-component-{weekday}-{week}"`. Weekday `0` is Sunday. Cells GitHub does not render (future days in the current week) stay `null`.
 2. The count is not on the cell. A sibling `<tool-tip for="that-id">` holds text such as `3 contributions on March 2nd.` or `No contributions on March 3rd.` Commas in large counts are ignored.
 
-Weeks are `calendar.weeks[column][weekday]`. `calendar.total` is the sum of every parsed day. When the HTML has no cells, the parser returns `null`, and the component shows an empty state with a link to `https://github.com/<username>`.
+`calendar.total` is the sum of every parsed day. When the HTML has no cells, the parser returns `null`, and the component shows an empty state with a link to `https://github.com/<username>`. GitHub can change this markup. A failed parse becomes the empty state rather than a thrown error.
 
-GitHub can change this markup. A failed parse becomes the empty state rather than a thrown error.
+## Develop
 
-## Props
-
-| Prop | Type | Default | |
-| --- | --- | --- | --- |
-| `calendar` | `ContributionCalendar \| null` | — | Parsed year. `null` renders the empty state. |
-| `username` | `string` | `"octocat"` | GitHub login used in the empty-state link. |
-| `className` | `string` | — | Extra class on the root element. |
-| `accentColor` | `string` | `"#0a3986"` | Mixed into the active building's roof and used as its stroke. Set with the CSS variable `--iso-accent`. |
-
-```ts
-type ContributionDay = {
-  date: string // YYYY-MM-DD
-  count: number
-  level: number // 0–4
-}
-
-type ContributionCalendar = {
-  total: number
-  weeks: (ContributionDay | null)[][]
-}
+```bash
+git clone https://github.com/RosMengHeang/isometric-contributions.git
+cd isometric-contributions
+npm install        # also builds the library into dist/
+npm run dev        # demo at http://localhost:5173, try /?user=octocat&variant=city&theme=neon
+npm test
+npm run build      # library into dist/, demo into demo-dist/
 ```
 
-Hover a building, or tap it, and that day appears under the legend. Moving the pointer off the chart clears it. The header shows the best streak, the busiest day, and the average per day. Building height is scaled to the busiest day in the year. Empty days stay flat.
-
-## Dark mode
-
-The light green ramp is the default. Add the class `dark` to any ancestor — the same hook Tailwind's class strategy uses — and the cells, legend, card, and type switch to the dark ramp:
-
-```css
-.dark .iso-cal { /* GitHub's dark contribution greens */ }
-```
-
-The demo toggles that class on `<html>`.
+The demo has a style picker, a theme picker, a dark-mode toggle, a Download SVG button, and copyable setup snippets for each install path. The Vite dev and preview servers proxy `https://github.com/users/<username>/contributions` through `/api/github/<username>/contributions`, because browsers cannot read that page directly.
 
 ## Credits
 

@@ -1,7 +1,7 @@
 {
   "name": "isometric-contributions",
-  "version": "0.1.0",
-  "description": "Isometric SVG GitHub contribution calendar for React. The buildings on taxzy.dev.",
+  "version": "0.2.0",
+  "description": "GitHub contribution calendar as an isometric 3D city, a 2D skyline, or a classic grid. React component, static SVG renderer, CLI, and GitHub Action.",
   "license": "MIT",
   "author": "Ros MengHeang (Taxzy) (https://taxzy.dev)",
   "homepage": "https://taxzy.dev",
@@ -19,34 +19,53 @@
     "contributions",
     "calendar",
     "isometric",
-    "svg"
+    "svg",
+    "city",
+    "skyline",
+    "3d",
+    "portfolio",
+    "readme",
+    "github-action",
+    "cli"
   ],
   "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "isometric-contributions": "./dist/cli.js"
+  },
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE"
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./contributions": {
-      "types": "./src/contributions.ts",
-      "default": "./src/contributions.ts"
+      "types": "./dist/contributions.d.ts",
+      "default": "./dist/contributions.js"
     },
-    "./styles.css": "./src/iso-styles.css"
+    "./svg": {
+      "types": "./dist/svg.d.ts",
+      "default": "./dist/svg.js"
+    },
+    "./styles.css": "./dist/iso-styles.css"
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run build:lib && npm run build:demo",
+    "build:lib": "tsc -p tsconfig.build.json && node scripts/postbuild.mjs",
+    "build:demo": "tsc --noEmit && vite build",
+    "prepare": "npm run build:lib",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test scripts/check-parser.ts"
+    "test": "node --experimental-strip-types --test scripts/check-parser.ts scripts/check-render.ts"
   },
   "peerDependencies": {
     "react": ">=18",

@@ -1,23 +1,57 @@
 /* Isometric contribution calendar.
    Markup hooks: .iso-card, .iso-cal, .iso-cell, .gh-tile.
-   Add class "dark" on any ancestor for the dark green ramp. */
+   Palette: --iso-l0…--iso-l4 (light) and --iso-d0…--iso-d4 (dark), set by the component.
+   Dark mode: class "dark" on any ancestor, or data-scheme="dark" | "system" on .iso-card. */
 
-.gh-tile,
-.iso-cal {
-  --gh-0: #e5e5e5;
-  --gh-1: #9be9a8;
-  --gh-2: #40c463;
-  --gh-3: #30a14e;
-  --gh-4: #216e39;
+.iso-card {
+  --gh-0: var(--iso-l0, #e5e5e5);
+  --gh-1: var(--iso-l1, #9be9a8);
+  --gh-2: var(--iso-l2, #40c463);
+  --gh-3: var(--iso-l3, #30a14e);
+  --gh-4: var(--iso-l4, #216e39);
+  --iso-ink: #171717;
+  --iso-muted: #a3a3a3;
+  --iso-line: #e5e5e5;
+  --iso-paper: #fff;
+  --iso-window: #fff7d6;
+  --iso-body: #b4b4bb;
+  --iso-tree: #8cbf88;
+  --iso-link-line: #d4d4d4;
 }
 
-.dark .gh-tile,
-.dark .iso-cal {
-  --gh-0: #2b2b2f;
-  --gh-1: #0e4429;
-  --gh-2: #006d32;
-  --gh-3: #26a641;
-  --gh-4: #39d353;
+.dark .iso-card:not([data-scheme]),
+.iso-card[data-scheme="dark"] {
+  --gh-0: var(--iso-d0, #2b2b2f);
+  --gh-1: var(--iso-d1, #0e4429);
+  --gh-2: var(--iso-d2, #006d32);
+  --gh-3: var(--iso-d3, #26a641);
+  --gh-4: var(--iso-d4, #39d353);
+  --iso-ink: #f5f5f5;
+  --iso-muted: #a3a3a3;
+  --iso-line: #2e2e2e;
+  --iso-paper: #161616;
+  --iso-window: #fde68a;
+  --iso-body: #3f3f46;
+  --iso-tree: #2f5a3a;
+  --iso-link-line: #525252;
+}
+
+@media (prefers-color-scheme: dark) {
+  .iso-card[data-scheme="system"] {
+    --gh-0: var(--iso-d0, #2b2b2f);
+    --gh-1: var(--iso-d1, #0e4429);
+    --gh-2: var(--iso-d2, #006d32);
+    --gh-3: var(--iso-d3, #26a641);
+    --gh-4: var(--iso-d4, #39d353);
+    --iso-ink: #f5f5f5;
+    --iso-muted: #a3a3a3;
+    --iso-line: #2e2e2e;
+    --iso-paper: #161616;
+    --iso-window: #fde68a;
+    --iso-body: #3f3f46;
+  --iso-tree: #2f5a3a;
+    --iso-link-line: #525252;
+  }
 }
 
 .gh-tile {
@@ -54,31 +88,63 @@
 .iso-cell[data-level="3"] { --iso-c: var(--gh-3); }
 .iso-cell[data-level="4"] { --iso-c: var(--gh-4); }
 
-.iso-top { fill: var(--iso-c); }
+.iso-top,
+.iso-tile { fill: var(--iso-c); }
 .iso-left { fill: color-mix(in srgb, var(--iso-c) 60%, #000); }
 .iso-right { fill: color-mix(in srgb, var(--iso-c) 20%, #000); }
+.iso-ground-top,
+.iso-base { fill: var(--gh-0); }
+.iso-ground-left { fill: color-mix(in srgb, var(--gh-0) 75%, #000); }
+.iso-ground-right { fill: color-mix(in srgb, var(--gh-0) 55%, #000); }
+.iso-window { fill: var(--iso-window); }
+.iso-tree { fill: var(--iso-tree); }
+.iso-body { fill: var(--iso-body); }
 
-.iso-cell[data-active] {
+.iso-decor {
+  pointer-events: none;
+}
+
+.iso-cal[data-variant="isometric"] .iso-cell[data-active],
+.iso-cal[data-variant="city"] .iso-cell[data-active] {
   transform: translateY(-0.8px);
 }
 
-.iso-cell[data-active] .iso-top {
+.iso-cell[data-active] :is(.iso-top, .iso-tile) {
   fill: color-mix(in srgb, var(--iso-c) 70%, var(--iso-accent, #0a3986));
   stroke: var(--iso-accent, #0a3986);
   stroke-width: 0.25;
+}
+
+.iso-cell[data-active] .iso-tile {
+  stroke-width: 0.12;
+}
+
+.iso-cell[data-active]:not(:has(.iso-top)) .iso-ground-top {
+  fill: color-mix(in srgb, var(--gh-0) 70%, var(--iso-accent, #0a3986));
+  stroke: var(--iso-accent, #0a3986);
+  stroke-width: 0.25;
+}
+
+@keyframes iso-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .iso-cell {
     transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
   }
+
+  /* backwards, not both: a held final keyframe would block the hover transform. */
+  .iso-cal[data-animate] :is(.iso-cell, .iso-decor) {
+    animation: iso-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+    animation-delay: calc(var(--iso-i, 0) * 14ms);
+  }
 }
 
 .iso-card {
-  --iso-ink: #171717;
-  --iso-muted: #a3a3a3;
-  --iso-line: #e5e5e5;
-  --iso-paper: #fff;
   border: 1px solid var(--iso-line);
   border-radius: 10px;
   background: var(--iso-paper);
@@ -92,7 +158,7 @@
   }
 }
 
-.iso-card:not(.iso-empty) {
+.iso-card:not(.iso-empty, .iso-bare) {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
@@ -107,13 +173,13 @@
   text-align: center;
   font-size: 14px;
   font-weight: 300;
-  color: #737373;
+  color: var(--iso-muted);
 }
 
 .iso-empty a {
   color: var(--iso-ink);
   text-decoration: underline;
-  text-decoration-color: #d4d4d4;
+  text-decoration-color: var(--iso-link-line);
   text-underline-offset: 4px;
 }
 
@@ -180,26 +246,11 @@
 }
 
 @media (max-width: 639px) {
-  .iso-card:not(.iso-empty) {
+  .iso-card:not(.iso-empty, .iso-bare) {
     grid-template-columns: 1fr;
     grid-template-areas:
       "stats"
       "chart"
       "caption";
   }
-}
-
-.dark .iso-card {
-  --iso-ink: #f5f5f5;
-  --iso-muted: #a3a3a3;
-  --iso-line: #2e2e2e;
-  --iso-paper: #161616;
-}
-
-.dark .iso-empty {
-  color: #a3a3a3;
-}
-
-.dark .iso-empty a {
-  text-decoration-color: #525252;
 }
