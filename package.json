@@ -1,7 +1,7 @@
 {
   "name": "isometric-contributions",
   "version": "0.2.0",
-  "description": "GitHub contribution calendar as an isometric 3D city, a 2D skyline, or a classic grid. React component, static SVG renderer, CLI, and GitHub Action.",
+  "description": "GitHub contribution calendar as an isometric 3D city, a grove, a 2D skyline, or a classic grid. React component, static SVG renderer, CLI, and GitHub Action.",
   "license": "MIT",
   "author": "Ros MengHeang (Taxzy) (https://taxzy.dev)",
   "homepage": "https://taxzy.dev",
@@ -21,6 +21,7 @@
     "isometric",
     "svg",
     "city",
+    "grove",
     "skyline",
     "3d",
     "portfolio",

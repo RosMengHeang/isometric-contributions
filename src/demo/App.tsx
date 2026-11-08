@@ -37,6 +37,7 @@ import { buildGuides, DEFAULT_ACCENT, INSTALL, REPO, REPO_URL, type GuideId, typ
 const STYLE_INFO: Record<Variant, { label: string; blurb: string }> = {
   isometric: { label: "3D Blocks", blurb: "One block per day. Height follows the count." },
   city: { label: "3D City", blurb: "Skyscrapers, lit windows, rooftops, and parks." },
+  grove: { label: "3D Grove", blurb: "A park. Quiet days are lawn and flowers. Every commit grows a tree." },
   flat: { label: "2D Grid", blurb: "The classic GitHub calendar, restyled." },
   skyline: { label: "2D Skyline", blurb: "One tower per week. Days are the windows." },
 }
@@ -44,7 +45,7 @@ const STYLE_INFO: Record<Variant, { label: string; blurb: string }> = {
 const QUICK_USERS = ["RosMengHeang", "torvalds", "gaearon", "sindresorhus"]
 
 const FEATURES: { icon: ReactNode; title: string; text: string }[] = [
-  { icon: <LayersIcon size={18} />, title: "Four styles", text: "3D blocks, a 3D city, a 2D skyline, or the classic grid, all from one prop." },
+  { icon: <LayersIcon size={18} />, title: "Five styles", text: "3D blocks, a city, a grove, a 2D skyline, or the classic grid, all from one prop." },
   { icon: <PaletteIcon size={18} />, title: "Eight themes", text: "Light and dark ramps for every theme, or bring your own five brand colors." },
   { icon: <LockIcon size={18} />, title: "No token needed", text: "Reads GitHub's public calendar. No API key, no OAuth, and no rate-limit headaches." },
   { icon: <ServerIcon size={18} />, title: "Server-first", text: "Fetch on the server, hydrate only the hover. Works with React 18 and 19 and RSC." },
@@ -54,7 +55,7 @@ const FEATURES: { icon: ReactNode; title: string; text: string }[] = [
 
 const PROPS: [string, string, string, string][] = [
   ["calendar", "ContributionCalendar | null", "—", "The parsed year. null renders an empty state."],
-  ["variant", '"isometric" | "city" | "flat" | "skyline"', '"isometric"', "Drawing style."],
+  ["variant", '"isometric" | "city" | "grove" | "flat" | "skyline"', '"isometric"', "Drawing style."],
   ["theme", "ThemeName", '"github"', "Built-in color ramp."],
   ["colors", "[5 colors] | { light?, dark? }", "—", "Your own ramp. Overrides theme."],
   ["colorScheme", '"auto" | "system" | "light" | "dark"', '"auto"', "auto follows a .dark class on any ancestor."],
@@ -275,7 +276,7 @@ export function App() {
           <div className="container hero-inner">
             <a className="pill" href="#styles">
               <span className="pill-tag">New</span>
-              3D city and 2D skyline styles
+              3D grove style
               <ArrowIcon size={14} />
             </a>
             <h1>
@@ -285,7 +286,7 @@ export function App() {
             </h1>
             <p className="hero-lede">
               An open-source React component, SVG renderer, CLI, and GitHub Action that turns a year of commits into 3D
-              blocks, a skyline, or a classic grid. Add it to any portfolio in minutes.
+              blocks, a city, a grove, a skyline, or a classic grid. Add it to any portfolio in minutes.
             </p>
             <div className="hero-actions">
               <a className="btn btn-primary" href="#playground">
@@ -498,7 +499,7 @@ export function App() {
           <div className="container">
             <SectionHead
               eyebrow="Styles"
-              title="Four ways to draw a year"
+              title="Five ways to draw a year"
               text="Same data, same component. Switch the variant prop and the whole calendar is rebuilt."
             />
             <div className="gallery">

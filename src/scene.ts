@@ -3,13 +3,14 @@ import type { ContributionCalendar, ContributionDay } from "./contributions.ts"
 /**
  * - `isometric`: 3D blocks, one per day (the original look).
  * - `city`: 3D skyscrapers on street plates, with lit windows, rooftops, and trees on empty days.
+ * - `grove`: a 3D park. Quiet days are lawn and flowers. Any contribution grows a tree, taller on busier days.
  * - `flat`: the classic 2D GitHub grid.
  * - `skyline`: a 2D city. Each week is a tower whose height follows that week's total;
  *   the bottom seven windows are its days.
  */
-export type Variant = "isometric" | "city" | "flat" | "skyline"
+export type Variant = "isometric" | "city" | "grove" | "flat" | "skyline"
 
-export const variants: readonly Variant[] = ["isometric", "city", "flat", "skyline"]
+export const variants: readonly Variant[] = ["isometric", "city", "grove", "flat", "skyline"]
 
 export type ShapePart =
   | "top"
@@ -20,6 +21,8 @@ export type ShapePart =
   | "ground-right"
   | "window"
   | "tree"
+  | "trunk"
+  | "flower"
   | "tile"
   | "body"
   | "base"
@@ -115,10 +118,15 @@ class Pen {
   }
 
   circle(cx: number, cy: number, radius: number) {
-    this.see(cx - radius, cy - radius)
-    this.see(cx + radius, cy + radius)
-    const k = r(radius)
-    return `M${r(cx - radius)},${r(cy)}a${k},${k} 0 1,0 ${r(2 * radius)},0a${k},${k} 0 1,0 ${r(-2 * radius)},0Z`
+    return this.ellipse(cx, cy, radius, radius)
+  }
+
+  ellipse(cx: number, cy: number, rx: number, ry: number) {
+    this.see(cx - rx, cy - ry)
+    this.see(cx + rx, cy + ry)
+    const x = r(rx)
+    const y = r(ry)
+    return `M${r(cx - rx)},${r(cy)}a${x},${y} 0 1,0 ${r(2 * rx)},0a${x},${y} 0 1,0 ${r(-2 * rx)},0Z`
   }
 
   viewBox(pad: number): ViewBox {
@@ -218,6 +226,59 @@ function city(calendar: ContributionCalendar, highest: number, pen: Pen) {
   return items
 }
 
+/**
+ * Stacked foliage. The widest, darkest scoop sits on the trunk; smaller lighter
+ * scoops step upward, so the crown reads as one tree rather than loose bubbles.
+ */
+function crown(pen: Pen, cx: number, cy: number, radius: number, branch: boolean): Shape[] {
+  const shapes: Shape[] = []
+  if (branch) shapes.push({ part: "left", d: pen.ellipse(cx - radius * 0.78, cy + radius * 0.08, radius * 0.46, radius * 0.3) })
+  shapes.push({ part: "right", d: pen.ellipse(cx + radius * 0.04, cy, radius, radius * 0.58) })
+  shapes.push({ part: "left", d: pen.ellipse(cx - radius * 0.02, cy - radius * 0.34, radius * 0.78, radius * 0.46) })
+  shapes.push({ part: "top", d: pen.ellipse(cx, cy - radius * 0.66, radius * 0.52, radius * 0.34) })
+  return shapes
+}
+
+function grove(calendar: ContributionCalendar, highest: number, pen: Pen) {
+  const items: SceneItem[] = []
+  const ground = ["ground-top", "ground-left", "ground-right"] as const
+  eachDay(calendar, (day, column, row) => {
+    const cx = HALF * (column - row) + HALF
+    const cy = column + row + 1
+    const shapes = prism(pen, cx, cy + 0.3, HALF * 0.97, 0.97, 0.3, ground)
+    const x = cx + (noise(`${day.date}:x`) - 0.5) * 0.22
+
+    if (day.count <= 0 || highest <= 0) {
+      const n = noise(day.date)
+      if (n < 0.26) {
+        const fx = cx + (noise(`${day.date}:fx`) - 0.5) * 0.7
+        const fy = cy + (noise(`${day.date}:fy`) - 0.5) * 0.28
+        shapes.push({ part: "flower", d: pen.circle(fx, fy, n < 0.09 ? 0.3 : 0.24) })
+      }
+    } else {
+      // Square root, with a floor, so a single commit is still a tree when one day dwarfs the year.
+      const t = Math.sqrt(day.count / highest)
+      const trunkH = 1.35 + 3.8 * Math.pow(t, 0.8)
+      const radius = 0.5 + 0.4 * t
+      const base = 0.15 + 0.14 * t
+      const topW = base * 0.55
+      shapes.push({
+        part: "trunk",
+        d: pen.poly([
+          [x - base, cy],
+          [x + base, cy],
+          [x + topW, cy - trunkH],
+          [x - topW, cy - trunkH],
+        ]),
+      })
+      shapes.push(...crown(pen, x, cy - trunkH + radius * 0.18, radius, t >= 0.62))
+    }
+
+    items.push({ day, column, shapes })
+  })
+  return items
+}
+
 function flat(calendar: ContributionCalendar, pen: Pen) {
   const items: SceneItem[] = []
   eachDay(calendar, (day, column, row) => {
@@ -267,7 +328,7 @@ function skyline(calendar: ContributionCalendar, pen: Pen) {
   return items
 }
 
-const PADDING: Record<Variant, number> = { isometric: 0.6, city: 0.6, flat: 0.3, skyline: 0.4 }
+const PADDING: Record<Variant, number> = { isometric: 0.6, city: 0.6, grove: 0.8, flat: 0.3, skyline: 0.4 }
 
 /** Framework-free geometry for one variant. Both the React component and the SVG renderer draw this. */
 export function buildScene(calendar: ContributionCalendar, variant: Variant = "isometric"): Scene {
@@ -277,10 +338,12 @@ export function buildScene(calendar: ContributionCalendar, variant: Variant = "i
   const items =
     kind === "city"
       ? city(calendar, highest, pen)
-      : kind === "flat"
-        ? flat(calendar, pen)
-        : kind === "skyline"
-          ? skyline(calendar, pen)
-          : isometric(calendar, highest, pen)
+      : kind === "grove"
+        ? grove(calendar, highest, pen)
+        : kind === "flat"
+          ? flat(calendar, pen)
+          : kind === "skyline"
+            ? skyline(calendar, pen)
+            : isometric(calendar, highest, pen)
   return { variant: kind, items, viewBox: pen.viewBox(PADDING[kind]) }
 }

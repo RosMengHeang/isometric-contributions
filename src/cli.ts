@@ -28,6 +28,7 @@ Options
 
 Examples
   npx github:RosMengHeang/isometric-contributions octocat -v city -t ocean -o public/city.svg
+  npx github:RosMengHeang/isometric-contributions octocat -v grove -t github -o public/grove.svg
   npx github:RosMengHeang/isometric-contributions octocat -f json -o src/data/contributions.json
 `
 

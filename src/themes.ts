@@ -51,12 +51,32 @@ export type Surface = {
   window: string
   body: string
   tree: string
+  trunk: string
+  flower: string
 }
 
 /** Card, text, window, and skyline colors. Mirrors the defaults in iso-styles.css. */
 export const surfaces: Record<"light" | "dark", Surface> = {
-  light: { paper: "#ffffff", ink: "#171717", muted: "#a3a3a3", window: "#fff7d6", body: "#b4b4bb", tree: "#8cbf88" },
-  dark: { paper: "#161616", ink: "#f5f5f5", muted: "#a3a3a3", window: "#fde68a", body: "#3f3f46", tree: "#2f5a3a" },
+  light: {
+    paper: "#ffffff",
+    ink: "#171717",
+    muted: "#a3a3a3",
+    window: "#fff7d6",
+    body: "#b4b4bb",
+    tree: "#8cbf88",
+    trunk: "#6e4b32",
+    flower: "#e3a008",
+  },
+  dark: {
+    paper: "#161616",
+    ink: "#f5f5f5",
+    muted: "#a3a3a3",
+    window: "#fde68a",
+    body: "#3f3f46",
+    tree: "#2f5a3a",
+    trunk: "#d7b48a",
+    flower: "#fbbf24",
+  },
 }
 
 export function resolveColors(theme: ThemeName = "github", colors?: CustomColors): ThemeColors {
