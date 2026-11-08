@@ -41,6 +41,8 @@ function schemeCss(scope: string, palette: Palette, surface: Surface) {
     `${scope} .iso-ground-right{fill:${shade(palette[0], 0.55)}}`,
     `${scope} .iso-window{fill:${surface.window}}`,
     `${scope} .iso-tree{fill:${surface.tree}}`,
+    `${scope} .iso-trunk{fill:${surface.trunk}}`,
+    `${scope} .iso-flower{fill:${surface.flower}}`,
     `${scope} .iso-body{fill:${surface.body}}`,
     `${scope} .iso-bg{fill:${surface.paper}}`,
     `${scope} .iso-ink{fill:${surface.ink}}`,

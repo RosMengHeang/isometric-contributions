@@ -16,6 +16,8 @@
   --iso-window: #fff7d6;
   --iso-body: #b4b4bb;
   --iso-tree: #8cbf88;
+  --iso-trunk: #6e4b32;
+  --iso-flower: #e3a008;
   --iso-link-line: #d4d4d4;
 }
 
@@ -33,6 +35,8 @@
   --iso-window: #fde68a;
   --iso-body: #3f3f46;
   --iso-tree: #2f5a3a;
+  --iso-trunk: #d7b48a;
+  --iso-flower: #fbbf24;
   --iso-link-line: #525252;
 }
 
@@ -49,7 +53,9 @@
     --iso-paper: #161616;
     --iso-window: #fde68a;
     --iso-body: #3f3f46;
-  --iso-tree: #2f5a3a;
+    --iso-tree: #2f5a3a;
+    --iso-trunk: #d7b48a;
+    --iso-flower: #fbbf24;
     --iso-link-line: #525252;
   }
 }
@@ -98,6 +104,8 @@
 .iso-ground-right { fill: color-mix(in srgb, var(--gh-0) 55%, #000); }
 .iso-window { fill: var(--iso-window); }
 .iso-tree { fill: var(--iso-tree); }
+.iso-trunk { fill: var(--iso-trunk); }
+.iso-flower { fill: var(--iso-flower); }
 .iso-body { fill: var(--iso-body); }
 
 .iso-decor {
@@ -105,7 +113,8 @@
 }
 
 .iso-cal[data-variant="isometric"] .iso-cell[data-active],
-.iso-cal[data-variant="city"] .iso-cell[data-active] {
+.iso-cal[data-variant="city"] .iso-cell[data-active],
+.iso-cal[data-variant="grove"] .iso-cell[data-active] {
   transform: translateY(-0.8px);
 }
 
@@ -113,6 +122,11 @@
   fill: color-mix(in srgb, var(--iso-c) 70%, var(--iso-accent, #0a3986));
   stroke: var(--iso-accent, #0a3986);
   stroke-width: 0.25;
+}
+
+.iso-cal[data-variant="grove"] .iso-cell[data-active] :is(.iso-top, .iso-left, .iso-right, .iso-trunk) {
+  stroke: var(--iso-accent, #0a3986);
+  stroke-width: 0.1;
 }
 
 .iso-cell[data-active] .iso-tile {
