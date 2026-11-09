@@ -51,12 +51,47 @@ export type Surface = {
   window: string
   body: string
   tree: string
+  lawn: string
+  earth: string
+  earthShade: string
+  wall: string
+  wallShade: string
+  door: string
+  flower: string
 }
 
 /** Card, text, window, and skyline colors. Mirrors the defaults in iso-styles.css. */
 export const surfaces: Record<"light" | "dark", Surface> = {
-  light: { paper: "#ffffff", ink: "#171717", muted: "#a3a3a3", window: "#fff7d6", body: "#b4b4bb", tree: "#8cbf88" },
-  dark: { paper: "#161616", ink: "#f5f5f5", muted: "#a3a3a3", window: "#fde68a", body: "#3f3f46", tree: "#2f5a3a" },
+  light: {
+    paper: "#ffffff",
+    ink: "#171717",
+    muted: "#a3a3a3",
+    window: "#fff7d6",
+    body: "#b4b4bb",
+    tree: "#8cbf88",
+    lawn: "#7dae4e",
+    earth: "#8a6246",
+    earthShade: "#5c4030",
+    wall: "#f4efe4",
+    wallShade: "#e2d5c0",
+    door: "#6d4630",
+    flower: "#fff8ee",
+  },
+  dark: {
+    paper: "#161616",
+    ink: "#f5f5f5",
+    muted: "#a3a3a3",
+    window: "#fde68a",
+    body: "#3f3f46",
+    tree: "#2f5a3a",
+    lawn: "#3e7a3c",
+    earth: "#c4a07a",
+    earthShade: "#8d6a4a",
+    wall: "#6a645b",
+    wallShade: "#4a453e",
+    door: "#e7c4a2",
+    flower: "#fde68a",
+  },
 }
 
 export function resolveColors(theme: ThemeName = "github", colors?: CustomColors): ThemeColors {

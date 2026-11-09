@@ -16,6 +16,13 @@
   --iso-window: #fff7d6;
   --iso-body: #b4b4bb;
   --iso-tree: #8cbf88;
+  --iso-lawn: #7dae4e;
+  --iso-earth: #8a6246;
+  --iso-earth-shade: #5c4030;
+  --iso-wall: #f4efe4;
+  --iso-wall-shade: #e2d5c0;
+  --iso-door: #6d4630;
+  --iso-flower: #fff8ee;
   --iso-link-line: #d4d4d4;
 }
 
@@ -33,6 +40,13 @@
   --iso-window: #fde68a;
   --iso-body: #3f3f46;
   --iso-tree: #2f5a3a;
+  --iso-lawn: #3e7a3c;
+  --iso-earth: #c4a07a;
+  --iso-earth-shade: #8d6a4a;
+  --iso-wall: #6a645b;
+  --iso-wall-shade: #4a453e;
+  --iso-door: #e7c4a2;
+  --iso-flower: #fde68a;
   --iso-link-line: #525252;
 }
 
@@ -49,7 +63,14 @@
     --iso-paper: #161616;
     --iso-window: #fde68a;
     --iso-body: #3f3f46;
-  --iso-tree: #2f5a3a;
+    --iso-tree: #2f5a3a;
+    --iso-lawn: #3e7a3c;
+    --iso-earth: #c4a07a;
+    --iso-earth-shade: #8d6a4a;
+    --iso-wall: #6a645b;
+    --iso-wall-shade: #4a453e;
+    --iso-door: #e7c4a2;
+    --iso-flower: #fde68a;
     --iso-link-line: #525252;
   }
 }
@@ -98,6 +119,13 @@
 .iso-ground-right { fill: color-mix(in srgb, var(--gh-0) 55%, #000); }
 .iso-window { fill: var(--iso-window); }
 .iso-tree { fill: var(--iso-tree); }
+.iso-lawn { fill: var(--iso-lawn); }
+.iso-earth { fill: var(--iso-earth); }
+.iso-earth-shade { fill: var(--iso-earth-shade); }
+.iso-wall { fill: var(--iso-wall); }
+.iso-wall-shade { fill: var(--iso-wall-shade); }
+.iso-door { fill: var(--iso-door); }
+.iso-flower { fill: var(--iso-flower); }
 .iso-body { fill: var(--iso-body); }
 
 .iso-decor {
@@ -105,7 +133,8 @@
 }
 
 .iso-cal[data-variant="isometric"] .iso-cell[data-active],
-.iso-cal[data-variant="city"] .iso-cell[data-active] {
+.iso-cal[data-variant="city"] .iso-cell[data-active],
+.iso-cal[data-variant="village"] .iso-cell[data-active] {
   transform: translateY(-0.8px);
 }
 
@@ -123,6 +152,12 @@
   fill: color-mix(in srgb, var(--gh-0) 70%, var(--iso-accent, #0a3986));
   stroke: var(--iso-accent, #0a3986);
   stroke-width: 0.25;
+}
+
+.iso-cal[data-variant="village"] .iso-cell[data-active]:not(:has(.iso-top)) .iso-lawn {
+  fill: color-mix(in srgb, var(--iso-lawn) 72%, var(--iso-accent, #0a3986));
+  stroke: var(--iso-accent, #0a3986);
+  stroke-width: 0.16;
 }
 
 @keyframes iso-rise {

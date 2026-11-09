@@ -1,6 +1,6 @@
 # isometric-contributions
 
-Your GitHub contribution calendar, drawn as a city. Pick a style (3D blocks, a 3D city, a 2D skyline, or the classic grid) and a color theme. Then drop it into your portfolio as a React component, a static SVG, or a self-updating image in your GitHub profile README.
+Your GitHub contribution calendar, drawn as a city. Pick a style (3D blocks, a 3D city, an island village, a 2D skyline, or the classic grid) and a color theme. Then drop it into your portfolio as a React component, a static SVG, or a self-updating image in your GitHub profile README.
 
 This is the calendar on [taxzy.dev](https://taxzy.dev). MIT licensed, by [Ros MengHeang](https://github.com/RosMengHeang) (Taxzy).
 
@@ -12,11 +12,13 @@ This is the calendar on [taxzy.dev](https://taxzy.dev). MIT licensed, by [Ros Me
 | --- | --- |
 | `isometric` (default) | 3D blocks. Height follows each day's count. |
 | `city` | 3D skyscrapers on street plates, with lit windows, rooftop details, antennas on the busiest days, and trees on empty days. |
+| `village` | A floating grass island. Empty days are lawn plots, sometimes with a flower or a small tree. Contribution days are cottages: pitched roofs in the theme color, lit windows, a door, steps, and a chimney. Busier days are taller and a little wider. |
 | `flat` | The classic 2D GitHub grid. |
 | `skyline` | A 2D city. Each week is a tower whose height follows that week's total. Its bottom seven windows are the days. |
 
 <p>
   <img src="docs/city.svg" alt="city variant" width="100%" />
+  <img src="docs/village.svg" alt="village variant" width="100%" />
   <img src="docs/skyline.svg" alt="skyline variant" width="100%" />
 </p>
 
@@ -90,7 +92,7 @@ By default the SVG follows the viewer's light or dark OS setting. Hovering a day
 ```text
 Usage: isometric-contributions <github-username> [options]
 
-  -v, --variant <name>   isometric | city | flat | skyline   (default: isometric)
+  -v, --variant <name>   isometric | city | village | flat | skyline   (default: isometric)
   -t, --theme <name>     github | halloween | ocean | sunset | neon | sakura | frost | mono
   -s, --scheme <name>    system | light | dark   (default: system)
       --colors <list>    five comma-separated colors, overrides --theme
@@ -157,7 +159,7 @@ The action takes the inputs `username`, `variant`, `theme`, `scheme`, `colors`, 
 | --- | --- | --- | --- |
 | `calendar` | `ContributionCalendar \| null` | — | Parsed year. `null` renders the empty state. |
 | `username` | `string` | `"octocat"` | GitHub login used in the empty-state link. |
-| `variant` | `"isometric" \| "city" \| "flat" \| "skyline"` | `"isometric"` | Drawing style. |
+| `variant` | `"isometric" \| "city" \| "village" \| "flat" \| "skyline"` | `"isometric"` | Drawing style. The default stays `isometric`. |
 | `theme` | `ThemeName` | `"github"` | Built-in color ramp. |
 | `colors` | `[5 colors] \| { light?, dark? }` | — | Your own ramp, from no contributions to the most. Overrides `theme`. |
 | `colorScheme` | `"auto" \| "system" \| "light" \| "dark"` | `"auto"` | `auto` follows a `dark` class on any ancestor. `system` follows the OS. |
@@ -169,6 +171,7 @@ The action takes the inputs `username`, `variant`, `theme`, `scheme`, `colors`, 
 
 ```tsx
 <IsometricContributions calendar={calendar} colors={["#eee", "#c7d2fe", "#818cf8", "#4f46e5", "#312e81"]} />
+<IsometricContributions calendar={calendar} variant="village" theme="github" />
 <IsometricContributions calendar={calendar} variant="flat" showStats={false} showLegend={false} />
 ```
 
@@ -222,7 +225,7 @@ That URL is the public profile graph. The fetch sends no personal access token a
 git clone https://github.com/RosMengHeang/isometric-contributions.git
 cd isometric-contributions
 npm install        # also builds the library into dist/
-npm run dev        # demo at http://localhost:5173, try /?user=octocat&variant=city&theme=neon
+npm run dev        # demo at http://localhost:5173, try /?user=octocat&variant=village&theme=github
 npm test
 npm run build      # library into dist/, demo into demo-dist/
 ```

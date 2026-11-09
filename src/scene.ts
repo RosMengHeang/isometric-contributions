@@ -3,13 +3,14 @@ import type { ContributionCalendar, ContributionDay } from "./contributions.ts"
 /**
  * - `isometric`: 3D blocks, one per day (the original look).
  * - `city`: 3D skyscrapers on street plates, with lit windows, rooftops, and trees on empty days.
+ * - `village`: a floating grass island. Quiet days are lawn. Contribution days are cottages.
  * - `flat`: the classic 2D GitHub grid.
  * - `skyline`: a 2D city. Each week is a tower whose height follows that week's total;
  *   the bottom seven windows are its days.
  */
-export type Variant = "isometric" | "city" | "flat" | "skyline"
+export type Variant = "isometric" | "city" | "village" | "flat" | "skyline"
 
-export const variants: readonly Variant[] = ["isometric", "city", "flat", "skyline"]
+export const variants: readonly Variant[] = ["isometric", "city", "village", "flat", "skyline"]
 
 export type ShapePart =
   | "top"
@@ -20,6 +21,13 @@ export type ShapePart =
   | "ground-right"
   | "window"
   | "tree"
+  | "lawn"
+  | "earth"
+  | "earth-shade"
+  | "wall"
+  | "wall-shade"
+  | "door"
+  | "flower"
   | "tile"
   | "body"
   | "base"
@@ -218,6 +226,81 @@ function city(calendar: ContributionCalendar, highest: number, pen: Pen) {
   return items
 }
 
+/** Hip roof. Back slopes first, so the theme-colored front planes cover them. */
+function hipRoof(pen: Pen, cx: number, cy: number, hw: number, hh: number, wallH: number, rise: number): Shape[] {
+  const n: Point = [cx, cy - hh - wallH]
+  const e: Point = [cx + hw, cy - wallH]
+  const s: Point = [cx, cy + hh - wallH]
+  const w: Point = [cx - hw, cy - wallH]
+  const apex: Point = [cx, cy - wallH - rise]
+  return [
+    { part: "left", d: pen.poly([w, n, apex]) },
+    { part: "left", d: pen.poly([n, e, apex]) },
+    { part: "top", d: pen.poly([s, w, apex]) },
+    { part: "right", d: pen.poly([e, s, apex]) },
+  ]
+}
+
+/** A quad on an isometric wall face, from base edge a→b, lifted `up` above that edge. */
+function onFace(pen: Pen, a: Point, b: Point, t0: number, t1: number, up0: number, up1: number) {
+  const at = (t: number, up: number): Point => [a[0] + t * (b[0] - a[0]), a[1] + t * (b[1] - a[1]) - up]
+  return pen.poly([at(t0, up1), at(t1, up1), at(t1, up0), at(t0, up0)])
+}
+
+function village(calendar: ContributionCalendar, highest: number, pen: Pen) {
+  const items: SceneItem[] = []
+  const crust = ["lawn", "earth", "earth-shade"] as const
+  eachDay(calendar, (day, column, row) => {
+    const cx = HALF * (column - row) + HALF
+    const cy = column + row + 1
+    const shapes = prism(pen, cx, cy + 1.05, HALF * 0.98, 0.98, 1.05, crust)
+    const n = noise(day.date)
+
+    if (day.count <= 0 || highest <= 0) {
+      const ox = (noise(`${day.date}:x`) - 0.5) * 0.7
+      if (n < 0.16) {
+        const tx = cx + ox
+        shapes.push({ part: "earth", d: pen.rect(tx - 0.06, cy - 0.42, 0.12, 0.42) })
+        shapes.push({ part: "tree", d: pen.circle(tx, cy - 0.62, 0.34) })
+      } else if (n < 0.46) {
+        shapes.push({ part: "flower", d: pen.circle(cx + ox, cy + (noise(`${day.date}:y`) - 0.5) * 0.35, n < 0.28 ? 0.16 : 0.22) })
+      }
+    } else {
+      const t = Math.sqrt(day.count / highest)
+      const hw = 0.58 + 0.28 * t
+      const hh = hw * 0.7
+      const wallH = 0.36 + 0.5 * Math.pow(t, 0.85)
+      const rise = 0.46 + 0.5 * t
+      const rightA: Point = [cx, cy + hh]
+      const rightB: Point = [cx + hw, cy]
+      const leftA: Point = [cx - hw, cy]
+      const leftB: Point = [cx, cy + hh]
+
+      shapes.push(...prism(pen, cx + hw * 0.08, cy + hh * 1.15, hw * 0.62, 0.22, 0.12, ["wall", "wall-shade", "earth-shade"]))
+      if (t >= 0.4) {
+        shapes.push(...prism(pen, cx + hw * 0.08, cy + hh * 0.78, hw * 0.4, 0.16, 0.16, ["wall", "wall-shade", "earth-shade"]))
+      }
+      shapes.push(
+        { part: "wall", d: pen.poly([[cx - hw, cy - wallH], [cx, cy + hh - wallH], [cx, cy + hh], [cx - hw, cy]]) },
+        { part: "wall-shade", d: pen.poly([[cx, cy + hh - wallH], [cx + hw, cy - wallH], [cx + hw, cy], [cx, cy + hh]]) },
+      )
+      const win = 0.2 + 0.06 * t
+      shapes.push({ part: "door", d: onFace(pen, rightA, rightB, 0.36, 0.58, 0.02, Math.min(wallH * 0.55, 0.28)) })
+      shapes.push({ part: "window", d: onFace(pen, rightA, rightB, 0.22, 0.7, wallH * 0.58, wallH * 0.58 + win) })
+      if (t >= 0.42) shapes.push({ part: "window", d: onFace(pen, leftA, leftB, 0.28, 0.68, wallH * 0.55, wallH * 0.55 + win) })
+      shapes.push(...hipRoof(pen, cx, cy, hw, hh, wallH, rise))
+      const chimneyH = 0.2 + 0.12 * t
+      const chimneyX = cx + hw * 0.22
+      const chimneyTop = cy - wallH - rise * 0.35 - chimneyH
+      shapes.push({ part: "wall-shade", d: pen.rect(chimneyX, chimneyTop, 0.16, chimneyH) })
+      shapes.push({ part: "earth-shade", d: pen.rect(chimneyX - 0.03, chimneyTop - 0.08, 0.22, 0.08) })
+    }
+
+    items.push({ day, column, shapes })
+  })
+  return items
+}
+
 function flat(calendar: ContributionCalendar, pen: Pen) {
   const items: SceneItem[] = []
   eachDay(calendar, (day, column, row) => {
@@ -267,7 +350,7 @@ function skyline(calendar: ContributionCalendar, pen: Pen) {
   return items
 }
 
-const PADDING: Record<Variant, number> = { isometric: 0.6, city: 0.6, flat: 0.3, skyline: 0.4 }
+const PADDING: Record<Variant, number> = { isometric: 0.6, city: 0.6, village: 0.8, flat: 0.3, skyline: 0.4 }
 
 /** Framework-free geometry for one variant. Both the React component and the SVG renderer draw this. */
 export function buildScene(calendar: ContributionCalendar, variant: Variant = "isometric"): Scene {
@@ -277,10 +360,12 @@ export function buildScene(calendar: ContributionCalendar, variant: Variant = "i
   const items =
     kind === "city"
       ? city(calendar, highest, pen)
-      : kind === "flat"
-        ? flat(calendar, pen)
-        : kind === "skyline"
-          ? skyline(calendar, pen)
-          : isometric(calendar, highest, pen)
+      : kind === "village"
+        ? village(calendar, highest, pen)
+        : kind === "flat"
+          ? flat(calendar, pen)
+          : kind === "skyline"
+            ? skyline(calendar, pen)
+            : isometric(calendar, highest, pen)
   return { variant: kind, items, viewBox: pen.viewBox(PADDING[kind]) }
 }
