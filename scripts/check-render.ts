@@ -28,10 +28,34 @@ describe("buildScene", () => {
 
   it("is deterministic", () => {
     assert.deepEqual(buildScene(calendar, "city"), buildScene(calendar, "city"))
+    assert.deepEqual(buildScene(calendar, "village"), buildScene(calendar, "village"))
   })
 
-  it("falls back to isometric for an unknown variant", () => {
+  it("keeps isometric as the default", () => {
+    assert.equal(buildScene(calendar).variant, "isometric")
+    assert.equal(variants.includes("village"), true)
     assert.equal(buildScene(calendar, "nope" as never).variant, "isometric")
+  })
+
+  it("builds cottages on a grass island", () => {
+    const scene = buildScene(calendar, "village")
+    const parts = (date: string) => scene.items.find((item) => item.day?.date === date)?.shapes.map((shape) => shape.part) ?? []
+    assert.equal(scene.variant, "village")
+    for (const date of ["2026-01-04", "2026-01-05", "2026-01-11"]) {
+      assert.ok(parts(date).includes("lawn"))
+      assert.ok(parts(date).includes("earth"))
+    }
+    assert.equal(parts("2026-01-04").includes("window"), false)
+    assert.equal(parts("2026-01-04").includes("top"), false)
+    assert.ok(parts("2026-01-06").includes("window") && parts("2026-01-06").includes("door") && parts("2026-01-06").includes("top"))
+    assert.ok(parts("2026-01-11").includes("wall") && parts("2026-01-11").includes("top"))
+
+    const roofSpan = (date: string) => {
+      const tops = scene.items.find((item) => item.day?.date === date)?.shapes.filter((shape) => shape.part === "top") ?? []
+      const ys = tops.flatMap((shape) => [...shape.d.matchAll(/,(-?\d+(?:\.\d+)?)/g)].map((match) => Number(match[1])))
+      return Math.max(...ys) - Math.min(...ys)
+    }
+    assert.ok(roofSpan("2026-01-11") > roofSpan("2026-01-06"))
   })
 
   it("adds tower decoration for skyline", () => {
@@ -92,5 +116,19 @@ describe("renderContributionsSvg", () => {
 
   it("renders an empty state for a missing calendar", () => {
     assert.match(renderContributionsSvg(null, { username: "ghost" }), /No contribution data for @ghost/)
+  })
+
+  it("paints the village island without changing the default drawing", () => {
+    const village = renderContributionsSvg(calendar, { variant: "village", colorScheme: "light", header: false, id: "v" })
+    assert.match(village, /class="iso-lawn"/)
+    assert.match(village, /class="iso-window"/)
+    assert.ok(village.includes("#v .iso-lawn{fill:#7dae4e}"))
+    assert.ok(village.includes("#v .iso-earth{fill:#8a6246}"))
+    assert.ok(village.includes("#v .iso-wall{fill:#f4efe4}"))
+    const dark = renderContributionsSvg(calendar, { variant: "village", colorScheme: "dark", header: false, id: "vd" })
+    assert.ok(dark.includes("#vd .iso-lawn{fill:#3e7a3c}"))
+    const blocks = renderContributionsSvg(calendar, { header: false, colorScheme: "light", id: "d" })
+    assert.equal(blocks.includes('class="iso-lawn"'), false)
+    assert.equal(blocks.includes('class="iso-door"'), false)
   })
 })

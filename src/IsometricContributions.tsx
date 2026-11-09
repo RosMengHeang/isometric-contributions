@@ -33,7 +33,7 @@ export type IsometricContributionsProps = {
   className?: string
   /** Mixed into the active building and used as its stroke. */
   accentColor?: string
-  /** `isometric` (3D blocks), `city` (3D city), `flat` (2D grid), or `skyline` (2D city). */
+  /** `isometric` (3D blocks), `city` (3D city), `village` (island cottages), `flat` (2D grid), or `skyline` (2D city). */
   variant?: Variant
   /** Built-in color ramp. */
   theme?: ThemeName

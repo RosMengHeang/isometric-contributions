@@ -174,6 +174,18 @@ export function VariantGlyph({ variant }: { variant: Variant }) {
         <Cubes list={[[14, 14, 8, 6], [24, 9, 8, 10], [34, 16, 8, 4], [24, 20, 8, 3]]} />
       ) : variant === "city" ? (
         <Cubes list={[[14, 12, 5, 13], [24, 6, 5, 20], [34, 14, 5, 10], [24, 22, 5, 4]]} />
+      ) : variant === "village" ? (
+        <>
+          <path d="M4 24 24 30 44 24 24 18Z" opacity={0.28} />
+          <path d="M8 22 14 24.5 14 16.5 8 14Z" opacity={0.45} />
+          <path d="M14 16.5 20 14 20 22 14 24.5Z" opacity={0.28} />
+          <path d="M9 13.2 14 15.6 19 13.2 14 9.6Z" />
+          <path d="M28 20 36 23.5 36 13.5 28 10Z" opacity={0.45} />
+          <path d="M36 13.5 44 10 44 20 36 23.5Z" opacity={0.28} />
+          <path d="M29 9 36 12.2 43 9 36 4.6Z" />
+          <rect x="37.2" y="5.2" width="1.5" height="3.2" opacity={0.55} />
+          <circle cx="24" cy="22" r="1.1" opacity={0.7} />
+        </>
       ) : variant === "flat" ? (
         <>
           {Array.from({ length: 21 }, (_, i) => {
