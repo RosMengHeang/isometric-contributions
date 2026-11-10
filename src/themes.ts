@@ -94,12 +94,30 @@ export const surfaces: Record<"light" | "dark", Surface> = {
   },
 }
 
+function paletteFrom(colors: unknown): Palette | null {
+  if (!Array.isArray(colors) || colors.length !== 5) return null
+  const [a, b, c, d, e] = colors
+  if (typeof a !== "string" || typeof b !== "string" || typeof c !== "string" || typeof d !== "string" || typeof e !== "string") {
+    return null
+  }
+  return [a, b, c, d, e]
+}
+
+function isThemeOverride(colors: CustomColors): colors is Partial<ThemeColors> {
+  return !Array.isArray(colors)
+}
+
 export function resolveColors(theme: ThemeName = "github", colors?: CustomColors): ThemeColors {
   const base: ThemeColors = themes[theme] ?? themes.github
   if (!colors) return base
-  if (Array.isArray(colors)) return { light: colors as Palette, dark: colors as Palette }
-  const custom = colors as Partial<ThemeColors>
-  return { light: custom.light ?? base.light, dark: custom.dark ?? base.dark }
+  if (isThemeOverride(colors)) {
+    return {
+      light: paletteFrom(colors.light) ?? base.light,
+      dark: paletteFrom(colors.dark) ?? base.dark,
+    }
+  }
+  const palette = paletteFrom(colors)
+  return palette ? { light: palette, dark: palette } : base
 }
 
 function parseHex(color: string): number[] | null {

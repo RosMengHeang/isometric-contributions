@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react"
 import type { ContributionCalendar, ContributionDay } from "./contributions.ts"
-import { buildScene, describeDay, summarizeCalendar, type Variant } from "./scene.ts"
+import { buildScene, contributionLevel, describeDay, formatYearTotal, summarizeCalendar, type Variant } from "./scene.ts"
 import { resolveColors, type CustomColors, type ThemeName } from "./themes.ts"
 import "./iso-styles.css"
 
@@ -104,7 +104,7 @@ export function IsometricContributions({
         viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
         className="iso-cal"
         role="img"
-        aria-label={`${calendar.total} contributions in the last year`}
+        aria-label={formatYearTotal(calendar.total)}
         data-variant={scene.variant}
         data-animate={animate ? "" : undefined}
         onPointerLeave={() => setActive(null)}
@@ -125,7 +125,7 @@ export function IsometricContributions({
               key={day.date}
               className="iso-cell"
               style={delay}
-              data-level={day.level}
+              data-level={contributionLevel(day.level)}
               data-active={active?.date === day.date ? "" : undefined}
               onPointerEnter={() => setActive(day)}
               onClick={() => setActive(day)}

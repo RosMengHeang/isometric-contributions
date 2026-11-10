@@ -99,7 +99,8 @@ async function main() {
   if (values.out) {
     await mkdir(dirname(values.out), { recursive: true })
     await writeFile(values.out, output)
-    process.stderr.write(`Wrote ${values.out} (${calendar.total} contributions)\n`)
+    const noun = calendar.total === 1 ? "contribution" : "contributions"
+    process.stderr.write(`Wrote ${values.out} (${calendar.total} ${noun})\n`)
   } else {
     process.stdout.write(output)
   }

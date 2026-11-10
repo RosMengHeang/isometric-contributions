@@ -77,6 +77,20 @@ export function describeDay(day: ContributionDay) {
   return `${count} · ${dayFormat.format(new Date(`${day.date}T00:00:00Z`))}`
 }
 
+export function formatYearTotal(total: number): string {
+  const count = Number.isFinite(total) ? total : 0
+  const noun = count === 1 ? "contribution" : "contributions"
+  return `${count.toLocaleString("en-US")} ${noun} in the last year`
+}
+
+export function contributionLevel(level: number): 0 | 1 | 2 | 3 | 4 {
+  if (!Number.isFinite(level) || level <= 0) return 0
+  if (level >= 4) return 4
+  const bin = Math.trunc(level)
+  if (bin === 1 || bin === 2 || bin === 3) return bin
+  return 0
+}
+
 /** Stable 0–1 value per seed, so windows and trees stay put between renders. */
 export function noise(seed: string) {
   let h = 2166136261

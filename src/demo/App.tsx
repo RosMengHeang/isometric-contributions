@@ -9,6 +9,7 @@ import {
   type ThemeName,
   type Variant,
 } from "../index.ts"
+import { formatYearTotal } from "../scene.ts"
 import { CodeBlock, CopyButton, copyText } from "./code.tsx"
 import { DEFAULT_USER, loadCalendar, readParams, sampleCalendar } from "./data.ts"
 import {
@@ -237,7 +238,7 @@ export function App() {
     }
   }
 
-  const total = calendar?.total.toLocaleString("en-US") ?? "—"
+  const total = calendar ? formatYearTotal(calendar.total) : "—"
 
   return (
     <>
@@ -366,7 +367,7 @@ export function App() {
                         {status === "loading"
                           ? "Loading contributions…"
                           : status === "live"
-                            ? `${total} contributions in the last year`
+                            ? total
                             : "Profile not found. Showing sample data."}
                       </span>
                     </div>
