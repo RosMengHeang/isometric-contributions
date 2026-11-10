@@ -66,7 +66,7 @@
     "prepare": "npm run build:lib",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test scripts/check-parser.ts scripts/check-render.ts"
+    "test": "node --experimental-strip-types --test scripts/check-parser.ts scripts/check-render.ts scripts/check-svg-document.ts"
   },
   "peerDependencies": {
     "react": ">=18",
